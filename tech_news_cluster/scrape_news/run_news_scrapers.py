@@ -1,24 +1,40 @@
 import os
-from tech_news_cluster.settings import *
-from tech_news_cluster.scrape_news.scrape_news.spiders.spiders import *
+from settings import *
+from scrape_news.scrape_news.spiders.spiders import *
 from scrapy.utils.project import get_project_settings
 from scrapy.crawler import CrawlerProcess
 
 # Create a directory for data if it doesnt exist
-if not os.path.isdir(DATA_PATH):  
-    os.makedirs(DATA_PATH)
-os.environ['SCRAPY_SETTINGS_MODULE'] = 'tech_news_cluster.scrape_news.scrape_news.settings'
-settings_module_path = os.environ['SCRAPY_SETTINGS_MODULE']
-settings=get_project_settings()
+# if not os.path.isdir(DATA_PATH):  
+#     os.makedirs(DATA_PATH)
+
+
+
+
 process = CrawlerProcess(settings)
 process.crawl(VoxSpider)
-process.start()
-process.stop()
+
+
 
 class Scraper:
     def __init__(self):
-        self.process = CrawlerProcess(settings=get_project_settings())
-        self.spider = VoxSpider    
+        os.environ['SCRAPY_SETTINGS_MODULE'] = 'scrape_news.scrape_news.settings'
+        settings_module_path = os.environ['SCRAPY_SETTINGS_MODULE']
+        settings = get_project_settings()
+        self.process = CrawlerProcess(settings)
+    def run_spiders(self):
+        for pub in PUBLICATIONS:
+            spider = pub + "Spider"
+            csv_file = os.path.join(DATA_PATH, str(pub.lower()) + ".csv")
+            self.process.crawl(spider)
+        self.process.start()
+
+
+scraper = Scraper()     
+scraper.run_spiders()
+        
+
+        
 
 
 def get_csv_filenaes:
@@ -28,4 +44,4 @@ def get_csv_filenaes:
         
 
 
-
+process.start()
