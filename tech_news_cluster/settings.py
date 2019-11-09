@@ -36,3 +36,19 @@ if __name__ == '__main__':
     make_proj_module()
 
 DATA_PATH = os.path.join(PROJ_ROOT_DIR, "data")
+
+# Create a directory for data if it doesnt exist
+if not os.path.isdir(DATA_PATH):  
+    os.makedirs(DATA_PATH)
+
+
+BOT_NAME = 'scrape_news'
+
+SPIDER_MODULES = ['scrape_news.scrape_news.spiders']
+NEWSPIDER_MODULE = 'scrape_news.spiders'
+
+FEED_FORMAT = 'csv'
+FEED_URI = os.path.join(DATA_PATH, '%(name)s.csv')
+
+ROBOTSTXT_OBEY = True
+

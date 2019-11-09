@@ -9,17 +9,22 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'scrape_news'
+# DATA_PATH = os.path.join(PROJ_ROOT_DIR, "data")
 
-SPIDER_MODULES = ['scrape_news.scrape_news.spiders']
-NEWSPIDER_MODULE = 'scrape_news.spiders'
+# BOT_NAME = 'scrape_news'
+
+# SPIDER_MODULES = ['scrape_news.scrape_news.spiders']
+# NEWSPIDER_MODULE = 'scrape_news.spiders'
+
+# FEED_FORMAT = 'csv'
+# FEED_URI = 'data/%(name)s.csv'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'scrape_news (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+# ROBOTSTXT_OBEY = True
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -64,9 +69,9 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-ITEM_PIPELINES = {
-   'scrape_news.scrape_news.pipelines.CsvPipeline': 300,
-}
+# ITEM_PIPELINES = {
+#    'scrape_news.scrape_news.pipelines.CsvPipeline': 300,
+# }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
