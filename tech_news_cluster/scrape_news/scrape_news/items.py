@@ -9,6 +9,7 @@ import scrapy
 
 class ScrapeNewsItem(scrapy.Item):
     title = scrapy.Field()
+    date = scrapy.Field()
     summary = scrapy.Field()
     publication = scrapy.Field()
     author = scrapy.Field()

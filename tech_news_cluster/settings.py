@@ -3,7 +3,8 @@ import sys
 
 
 PUBLICATIONS = [
-    "Vox",
+    "Vice",
+    "Wired",
     # "NYTtimes"
 ]
 

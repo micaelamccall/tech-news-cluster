@@ -17,17 +17,21 @@ from scrapy.crawler import CrawlerProcess
 
 class Scraper:
     def __init__(self):
+        # set scrapy settings variable to my settings file
         os.environ['SCRAPY_SETTINGS_MODULE'] = 'settings'
         settings_module_path = os.environ['SCRAPY_SETTINGS_MODULE']
         settings = get_project_settings()
+        # Initialize crawler with these settings
         self.process = CrawlerProcess(settings)
     def run_spiders(self):
+        # Crawl a spider for each publication set in settings
         for pub in PUBLICATIONS:
             spider = eval(pub + "Spider")
             self.process.crawl(spider)
+        # Start the process
         self.process.start()
 
-
+# Initialize and run the spiders
 scraper = Scraper()     
 scraper.run_spiders()
         
