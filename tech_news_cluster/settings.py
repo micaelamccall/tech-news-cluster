@@ -2,12 +2,7 @@ import os
 import sys
 
 
-PUBLICATIONS = [
-    "Vice",
-    "Wired",
-    # "NYTtimes"
-]
-
+# Project directory settings
 def set_root_dir():
     """Sets the root directory of the project"""
     print("Verifying current working directory, which is: " + str(os.getcwd()))
@@ -36,20 +31,37 @@ def make_proj_module(project_directory=PROJ_ROOT_DIR):
 if __name__ == '__main__':
     make_proj_module()
 
+
+# Data directory (and setting one if it doesnt exist)
 DATA_PATH = os.path.join(PROJ_ROOT_DIR, "data")
 
-# Create a directory for data if it doesnt exist
 if not os.path.isdir(DATA_PATH):  
     os.makedirs(DATA_PATH)
 
 
-BOT_NAME = 'scrape_news'
-
-SPIDER_MODULES = ['scrape_news.scrape_news.spiders']
-NEWSPIDER_MODULE = 'scrape_news.spiders'
-
-FEED_FORMAT = 'csv'
-FEED_URI = os.path.join(DATA_PATH, '%(name)s.csv')
+# Webscraping settings
 
 ROBOTSTXT_OBEY = True
 
+# Publication to scrape. Comment out to not scrape when running 'run_news_scrape.py'
+PUBLICATIONS = [
+    "Vox",
+    "Vice",
+    "Wired",
+    # "NYTimes",
+    "Atlantic",
+    # "Buzzfeed"
+]
+
+# Scrapy bot name
+BOT_NAME = 'scrape_news'
+
+# Location of scrapy spiders
+SPIDER_MODULES = ['scrape_news.scrape_news.spiders']
+NEWSPIDER_MODULE = 'scrape_news.spiders'
+
+# Format to save scraped data
+FEED_FORMAT = 'csv'
+
+# Location to save scraped data, named according to name of spider
+FEED_URI = os.path.join(DATA_PATH, '%(name)s_%(time)s.csv')
