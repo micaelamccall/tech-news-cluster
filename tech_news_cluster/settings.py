@@ -41,16 +41,20 @@ if not os.path.isdir(DATA_PATH):
 
 # Webscraping settings
 
+USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
+
 ROBOTSTXT_OBEY = True
 
 # Publication to scrape. Comment out to not scrape when running 'run_news_scrape.py'
 PUBLICATIONS = [
-    "Vox",
-    "Vice",
-    "Wired",
-    # "NYTimes",
-    "Atlantic",
-    # "Buzzfeed"
+    # "Vox",
+    # "Vice",
+    # "Wired",
+    "NYTimes",
+    # "WaPo",
+    # "Atlantic",
+    # "Buzzfeed",
+    # "Gradient"
 ]
 
 # Scrapy bot name
@@ -65,3 +69,31 @@ FEED_FORMAT = 'csv'
 
 # Location to save scraped data, named according to name of spider
 FEED_URI = os.path.join(DATA_PATH, '%(name)s_%(time)s.csv')
+
+# Enable and configure the AutoThrottle extension (disabled by default)
+AUTOTHROTTLE_ENABLED = True
+# The initial download delay
+AUTOTHROTTLE_START_DELAY = 5
+# The maximum download delay to be set in case of high latencies
+AUTOTHROTTLE_MAX_DELAY = 60
+# The average number of requests Scrapy should be sending in parallel to
+# each remote server
+AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
+# Enable showing throttling stats for every response received:
+AUTOTHROTTLE_DEBUG = False
+
+# Enable downloader middlewares
+DOWNLOADER_MIDDLEWARES = {
+    'scrapy_splash.SplashCookiesMiddleware': 723,
+    'scrapy_splash.SplashMiddleware': 725,
+    'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
+#    'scrape_news.middlewares.ScrapeNewsDownloaderMiddleware': 543,
+}
+
+# Setting for scrapy-splash
+SPLASH_URL = 'http://0.0.0.0:8050'
+DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
+HTTPCACHE_STORAGE = 'scrapy_splash.SplashAwareFSCacheStorage'
+SPIDER_MIDDLEWARES = {
+    'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
+}

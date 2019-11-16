@@ -1,6 +1,7 @@
 import os
-from settings import *
+from settings import PUBLICATIONS
 from scrape_news.scrape_news.spiders.spiders import *
+from scrape_news.scrape_news.spiders.js_spiders import *
 from scrapy.utils.project import get_project_settings
 from scrapy.crawler import CrawlerProcess
 
