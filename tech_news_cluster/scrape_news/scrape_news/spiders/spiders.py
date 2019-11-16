@@ -1,9 +1,10 @@
 import scrapy
 from datetime import datetime
 import re
+# from scrape_news.scrape_news.items import ScrapeNewsItem
 from scrape_news.scrape_news.items import ScrapeNewsItem
 
-# This file contains vice_spider, nytimes_spider, wired_spider, atlantic_spider, vox_spider
+# This file contains vice_spider, buzzfeed_spider, wired_spider, atlantic_spider, vox_spider
 
 class ViceSpider(scrapy.Spider):
     name = "vice_spider"
@@ -59,7 +60,7 @@ class WiredSpider(scrapy.Spider):
     npages = 10
 
     # Getting multiple pages of articles
-    for i in range(2, npages+10):
+    for i in range(2, npages):
         start_urls.append("https://www.wired.com/category/business/artificial-intelligence/page/"+str(i)+"/")
 
     def parse(self, response):
@@ -71,74 +72,30 @@ class WiredSpider(scrapy.Spider):
         item = ScrapeNewsItem()
 
         # Getting title
-        item['title'] = response.xpath("//div[contains(@class,'content-header__row content-header__title-block')]/h1/descendant::text()").extract()[0]
+        item['title'] = response.xpath("//header[contains(@class,'content-header')]//h1/descendant::text()").extract()[0]
 
         # Gettings date
-        item['date'] = response.xpath("//div[contains(@class,'content-header__rubric-date-block')]//time/descendant::text()").extract()[0]
+        item['date'] = response.xpath("//header[contains(@class,'content-header')]//time/descendant::text()").extract()[0]
 
         # Getting summary
-        item['summary'] = response.xpath("//div[contains(@class,'content-header__row content-header__accreditation')]//p[contains(@class, 'content-header__row content-header__dek')]/descendant::text()").extract()[0]
+        item['summary'] = 'NA'
 
         # Getting author
-        item['author'] = ''.join(response.xpath("//div[contains(@class,'content-header__rubric-block')]//div[contains(@class, 'bylines bylines--inlined-with-bg')]/descendant::text()").extract())
+        item['author'] = ''.join(response.xpath("//header[contains(@class,'content-header')]//span[contains(@class, 'byline-component')]//descendant::text()").extract()[0])
 
         # Get URL
         item['url'] = response.xpath("//meta[@property='og:url']/@content").extract()
 
         # Get publication
-        item['publication'] = response.xpath("//picture[contains(@class,'responsive-image standard-navigation__logo-image')]//img/@alt").extract()[0].title()
-
-        # Get content
-        content_list = response.xpath("//div[contains(@class,'grid--item body body__container article__body grid-layout__content')]//p/descendant::text()").extract()
-        content_list = [content_fragment.strip() for content_fragment in content_list]
-        item['content'] = ' '.join(content_list).strip()
-
-        yield item
-
-class NYTimesSpider(scrapy.Spider):
-    name = "nytimes_spider"
-
-    # Start URLs
-    start_urls = ["https://www.nytimes.com/section/technology"]
-
-    npages = 10
-
-    # Getting multiple pages of articles
-    for i in range(2, npages+10):
-        start_urls.append("https://www.vice.com/en_us/topic/programming?page="+str(i)+"")
-
-    def parse(self, response):
-        for href in response.xpath("//li[contains(@class, 'css-ye6x8s')]//a/@href"):
-            url = "https://www.nytimes.com/" + href.extract()
-            yield scrapy.Request(url, callback=self.parse_dir_contents)
+        item['publication'] = "Wired"
         
-    def parse_dir_contents(self, response):
-        item = ScrapeNewsItem()
-
-        # Getting title
-        item['title'] = response.xpath("//div[contains(@class, 'css-6cn7ki')]//div[contains(@class, 'css-1sojcmr ehdk2mb0')]//h1/descendant::text()").extract()[0]
-
-        # Gettings date
-        item['date'] = ' '.join(response.xpath("//div[contains(@class, 'css-18e8msd epjyd6m0')]//li[contains(@class, 'css-i49r68')]//time/descendant::text()").extract())
-
-        # Getting summary
-        item['summary'] = response.xpath("//div[contains(@class, 'css-6cn7ki')]//p[contains(@class, 'css-1npvhc5 e1wiw3jv0')]/descendant::text()").extract()[0]
-
-        # Getting author
-        item['author'] = response.xpath("//div[contains(@class, 'css-18e8msd epjyd6m0')]//div[contains(@class, 'css-1baulvz')]//span/descendant::text()").extract()[0]
-
-        # Get URL
-        item['url'] = response.xpath("//meta[@property='og:url']/@content").extract()
-
-        # Get publication
-        item['publication'] = response.xpath("//div[contains(@class, 'css-10698na e1huz5gh0')]//a/@aria-label").extract()[0][0:14]
-
         # Get content
-        content_list = response.xpath("//section[contains(@name, 'articleBody')]/descendant::text()").extract()
+        content_list = response.xpath("//div[contains(@class,'article-main') or contains(@class, 'article__body')]//p/descendant::text()").extract()
         content_list = [content_fragment.strip() for content_fragment in content_list]
         item['content'] = ' '.join(content_list).strip()
 
         yield item
+
 
 class AtlanticSpider(scrapy.Spider):
     name = "atlantic_spider"
@@ -149,13 +106,15 @@ class AtlanticSpider(scrapy.Spider):
     npages = 10
 
     # Getting multiple pages of articles
-    for i in range(2, npages+10):
+    for i in range(2, npages):
         start_urls.append("https://www.theatlantic.com/technology/?page="+str(i)+"")
 
     def parse(self, response):
         for href in response.xpath("//li[contains(@class, 'c-most-popular__item')]//h3/a/@href"):
-            url = href.extract()
-            yield scrapy.Request(url, callback=self.parse_dir_contents)
+            # dont crawl video pages
+            if not "video" in href.extract():
+                url = href.extract()
+                yield scrapy.Request(url, callback=self.parse_dir_contents)
         
     def parse_dir_contents(self, response):
         item = ScrapeNewsItem()
@@ -164,7 +123,7 @@ class AtlanticSpider(scrapy.Spider):
         item['title'] = response.xpath("//header[contains(@class, 'c-article-header')]//h1/descendant::text()").extract()[0]
 
         # Gettings date
-        item['date'] = response.xpath("//header[contains(@class, 'c-article-header')]//div[contains@class, 'c-article-meta')]//time/descendant::text()").extract()[0].strip()
+        item['date'] = response.xpath("//header[contains(@class, 'c-article-header')]//div[contains(@class, 'c-article-meta')]//time/descendant::text()").extract()[0].strip()
 
         # Getting summary
         item['summary'] = response.xpath("//header[contains(@class, 'c-article-header')]//div[contains(@class, 'c-article-meta')]/p/descendant::text()").extract()[0]
@@ -176,7 +135,7 @@ class AtlanticSpider(scrapy.Spider):
         item['url'] = response.xpath("//meta[@property='og:url']/@content").extract()
 
         # Get publication
-        item['publication'] = response.xpath("//li[contains(@class, 'c-nav__item c-nav__item--main c-nav__item--logo')]//a[contains(@class, 'c-nav__link c-nav__link--main c-nav__link--logo c-logo c-logo--nav')]//span/descendant::text()").extract()[0]
+        item['publication'] = 'Atlantic'
 
         # Get content
         content_list = response.xpath("//section[contains(@class, 'l-article__section s-cms-content')]//p[contains(@dir, 'ltr')]/descendant::text()").extract()
@@ -185,97 +144,6 @@ class AtlanticSpider(scrapy.Spider):
 
         yield item
 
-# class WaPoSpider(scrapy.Spider):
-#     name = "wapo_spider"
-
-#     # Start URLs
-#     start_urls = ["https://www.washingtonpost.com/news/innovations/"]
-
-#     npages = 10
-
-#     # Getting multiple pages of articles
-#     for i in range(2, npages+10):
-#         start_urls.append("https://www.theatlantic.com/technology/?page="+str(i)+"")
-
-#     def parse(self, response):
-#         for href in response.xpath("//li[contains(@class, 'c-most-popular__item')]//h3/a/@href"):
-#             url = href.extract()
-#             yield scrapy.Request(url, callback=self.parse_dir_contents)
-        
-#     def parse_dir_contents(self, response):
-#         item = ScrapeNewsItem()
-
-#         # Getting title
-#         item['title'] = 
-
-#         # Gettings date
-#         item['date'] = 
-
-#         # Getting summary
-#         item['summary'] = 
-
-#         # Getting author
-#         item['author'] = 
-
-#         # Get URL
-#         item['url'] = response.xpath("//meta[@property='og:url']/@content").extract()
-
-#         # Get publication
-#         item['publication'] = response.xpath("//li[contains(@class, 'c-nav__item c-nav__item--main c-nav__item--logo')]//a[contains(@class, 'c-nav__link c-nav__link--main c-nav__link--logo c-logo c-logo--nav')]//span/descendant::text()").extract()[0]
-
-#         # Get content
-#         content_list = response.xpath("//section[contains(@class, 'l-article__section s-cms-content')]//p[contains(@dir, 'ltr')]/descendant::text()").extract()
-#         content_list = [content_fragment.strip() for content_fragment in content_list]
-#         item['content'] = ' '.join(content_list).strip()
-
-#         yield item
-
-
-# class BuzzfeedSpider(scrapy.Spider):
-#     name = "buzzfeed_spider"
-
-#     # Start URLs
-#     start_urls = ["https://www.buzzfeednews.com/section/tech"]
-
-#     npages = 10
-
-#     # Getting multiple pages of articles
-#     for i in range(2, npages+10):
-#         start_urls.append("https://www.theatlantic.com/technology/?page="+str(i)+"")
-
-#     def parse(self, response):
-#         for href in response.xpath("//span[contains(@class, 'newsblock-story-card__info xs-pr1 xs-block')]//a[contains(@class, 'newsblock-story-card__link xs-flex')]//@href"):
-#             url = href.extract()
-#             yield scrapy.Request(url, callback=self.parse_dir_contents)
-        
-#     def parse_dir_contents(self, response):
-#         item = ScrapeNewsItem()
-
-#         # Getting title
-#         item['title'] = 
-
-#         # Gettings date
-#         item['date'] = 
-
-#         # Getting summary
-#         item['summary'] = 
-
-#         # Getting author
-#         item['author'] = 
-
-#         # Get URL
-#         item['url'] = response.xpath("//meta[@property='og:url']/@content").extract()
-
-#         # Get publication
-#         item['publication'] = 
-
-#         # Get content
-#         content_list = 
-#         content_list = [content_fragment.strip() for content_fragment in content_list]
-#         item['content'] = ' '.join(content_list).strip()
-
-#         yield item
-
 
 class VoxSpider(scrapy.Spider):
     name = "vox_spider"
@@ -283,10 +151,10 @@ class VoxSpider(scrapy.Spider):
     # Start URLs
     start_urls = ["https://www.vox.com/future-perfect"]
 
-    npages = 10
+    npages = 5
 
     # Getting multiple pages of articles
-    for i in range(2, npages+10):
+    for i in range(2, npages):
         start_urls.append("https://www.vox.com/future-perfect/archives/"+str(i)+"")
 
     def parse(self, response):
@@ -322,3 +190,144 @@ class VoxSpider(scrapy.Spider):
 
         yield item
 
+class BuzzfeedSpider(scrapy.Spider):
+    name = "buzzfeed_spider"
+
+
+    # Start URLs
+    start_urls = ["https://www.buzzfeednews.com/section/tech"]
+
+
+    npages = 10
+
+    # Getting multiple pages of articles
+    for i in range(2, npages):
+        start_urls.append("https://www.buzzfeednews.com/section/tech?page="+str(i)+"")
+
+
+    def parse(self, response):
+        for href in response.xpath("//h2[contains(@class, 'newsblock-story-card__title')]//a/@href"):
+            url = href.extract()
+            yield scrapy.Request(url, callback=self.parse_dir_contents)
+        
+    def parse_dir_contents(self, response):
+        item = ScrapeNewsItem()
+
+        # Getting title
+        item['title'] = response.xpath("//h1[contains(@class, 'buzz-title') or contains(@class, 'news-article-header')]//descendant::text()").extract()[0]
+
+        # Gettings date
+        item['date'] = response.xpath("//div[contains(@class, 'buzz-timestamp') or contains(@class, 'timestamps')]//descendant::text()").extract()[1].strip()
+
+        # Getting summary
+        item['summary'] = response.xpath("//p[contains(@class, 'buzz-dek') or contains(@class, 'news-article-header__dek')]//descendant::text()").extract()[0].strip()
+
+        # Getting author
+        item['author'] = [n.strip() for n in response.xpath("//div[contains(@class, 'byline')]//a//span//descendant::text()").extract() if len(n)>7][0]
+
+        # Get URL
+        item['url'] = response.xpath("//meta[@property='og:url']/@content").extract()
+
+        # Get publication
+        item['publication'] = 'Buzzfeed News'
+
+        # Get content
+        content_list = response.xpath("//div[contains(@class, 'subbuzz subbuzz-text') or contains(@class, 'subbuzz__description')]/p/descendant::text()").extract()
+        content_list = [content_fragment.strip() for content_fragment in content_list]
+        item['content'] = ' '.join(content_list).strip()
+
+        yield item
+
+
+class VoxSpider(scrapy.Spider):
+    name = "vox_spider"
+
+    # Start URLs
+    start_urls = ["https://www.vox.com/future-perfect"]
+
+    npages = 5
+
+    # Getting multiple pages of articles
+    for i in range(2, npages):
+        start_urls.append("https://www.vox.com/future-perfect/archives/"+str(i)+"")
+
+    def parse(self, response):
+        for href in response.xpath("//div[contains(@class, 'c-compact-river__entry')]//a[contains(@class, 'c-entry-box--compact__image-wrapper')]//@href"):
+            url = href.extract()
+            yield scrapy.Request(url, callback=self.parse_dir_contents)
+        
+    def parse_dir_contents(self, response):
+        item = ScrapeNewsItem()
+
+        # Getting title
+        item['title'] = response.xpath("//div[contains(@class, 'c-entry-hero c-entry-hero--default ')]//h1/descendant::text()").extract()[0]
+
+        # Gettings date
+        item['date'] = response.xpath("//div[contains(@class, 'c-entry-hero c-entry-hero--default ')]//div[contains(@class, 'c-byline')]//time/descendant::text()").extract()[0].strip()
+
+        # Getting summary
+        item['summary'] = response.xpath("//div[contains(@class, 'c-entry-hero c-entry-hero--default ')]//p/descendant::text()").extract()[0]
+
+        # Getting author
+        item['author'] = response.xpath("//div[contains(@class, 'c-entry-hero c-entry-hero--default ')]//div[contains(@class, 'c-byline')]//span[contains(@class, 'c-byline__author-name')]/descendant::text()").extract()[0]
+
+        # Get URL
+        item['url'] = response.xpath("//meta[@property='og:url']/@content").extract()
+
+        # Get publication
+        item['publication'] = 'Vox'
+
+        # Get content
+        content_list = response.xpath("//div[contains(@class, 'c-entry-content')]//descendant::text()").extract()
+        content_list = [content_fragment.strip() for content_fragment in content_list]
+        item['content'] = ' '.join(content_list).strip()
+
+        yield item
+
+class GradientSpider(scrapy.Spider):
+    name = "gradient_spider"
+
+
+    # Start URLs
+    start_urls = ["https://thegradient.pub/"]
+
+
+    npages = 4
+
+    # Getting multiple pages of articles
+    for i in range(2, npages):
+        start_urls.append("https://thegradient.pub/page/"+str(i)+"/")
+
+
+    def parse(self, response):
+        for href in response.xpath("//div[contains(@class, 'c-post-card__media')]/a//@href"):
+            url = "https://thegradient.pub" + href.extract()
+            yield scrapy.Request(url, callback=self.parse_dir_contents)
+        
+    def parse_dir_contents(self, response):
+        item = ScrapeNewsItem()
+
+        # Getting title
+        item['title'] = response.xpath("//div[contains(@class, 'c-post-hero__content')]/h1//descendant::text()").extract()[0]
+
+        # Gettings date
+        item['date'] = response.xpath("//div[contains(@class, 'c-post-hero__content')]/time//descendant::text()").extract()[0]
+
+        # Getting summary
+        item['summary'] = "NA"
+
+        # Getting author
+        item['author'] = response.xpath("//div[contains(@class, 'c-widget c-widget-author')]//h3/a/descendant::text()").extract()[0]
+
+        # Get URL
+        item['url'] = response.xpath("//meta[@property='og:url']/@content").extract()
+
+        # Get publication
+        item['publication'] = 'The Gradient'
+
+        # Get content
+        content_list = response.xpath("//div[contains(@class, 'c-content')]//div[contains(@class, 'kg-card-markdown')]/p/text()").extract()
+        content_list = [content_fragment.strip() for content_fragment in content_list]
+        item['content'] = ' '.join(content_list).strip()
+
+        yield item
