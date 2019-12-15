@@ -1,7 +1,8 @@
 import scrapy
 from datetime import datetime
 import re
-from scrape_news.scrape_news.items import ScrapeNewsItem
+# from scrape_news.scrape_news.items import ScrapeNewsItem
+from scrape_news.items import ScrapeNewsItem
 from scrapy_splash import SplashRequest
 
 
@@ -86,6 +87,10 @@ class NYTimesSpider(scrapy.Spider):
             local elementt = splash:select('div.css-1stvaey button')
             local boundss = elementt.bounds()
             elementt:mouse_click{x=boundss.width/2, y=boundss.height/2}
+            splash:wait(2)
+            local elementtt = splash:select('div.css-1stvaey button')
+            local boundsss = elementtt.bounds()
+            elementtt:mouse_click{x=boundsss.width/2, y=boundsss.height/2}
             splash:wait(2)
             return splash:html()
         end
