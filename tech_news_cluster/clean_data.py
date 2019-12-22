@@ -21,9 +21,9 @@ def load_news_data():
 
 
 news_df = load_news_data().dropna(subset=['content'])
-news_df.publication.value_counts()
+news_df.publicsation.value_counts()
 
-if __name__ == '__main':
+if __name__ == '__main__':
     # Look at shape
     news_df.shape
     # Check format of date for each publication
@@ -172,7 +172,7 @@ def process_date_feature():
 news_df = process_date_feature()
 
 
-if __name__ == '__main':
+if __name__ == '__main__':
     for col in news_df:
         print(col, type(col))
 
