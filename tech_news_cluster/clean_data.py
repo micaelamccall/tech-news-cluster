@@ -21,9 +21,12 @@ def load_news_data():
 
 
 news_df = load_news_data().dropna(subset=['content'])
-news_df.publicsation.value_counts()
 
 if __name__ == '__main__':
+    # Number of news articles from each publication 
+    news_df.publication.value_counts()
+
+
     # Look at shape
     news_df.shape
     # Check format of date for each publication

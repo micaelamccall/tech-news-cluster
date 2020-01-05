@@ -47,9 +47,9 @@ ROBOTSTXT_OBEY = True
 # Publication to scrape. Comment out to not scrape when running 'run_news_scrape.py'
 PUBLICATIONS = [
     # "Vox",
-    # "Vice",
+    "Vice",
     "Wired",
-    "NYTimes",
+    # "NYTimes",
     "WaPo",
     # "Atlantic",
     # "Buzzfeed",

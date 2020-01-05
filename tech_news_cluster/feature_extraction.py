@@ -7,13 +7,13 @@
 # [x] vectorize
 
 import spacy
-import nltk
 import numpy as np
 from clean_data import news_df
 from functools import lru_cache
 from sklearn.feature_extraction.text import TfidfVectorizer
-
-
+import pandas as pd
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
 
 
 
@@ -33,7 +33,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 sp = spacy.load('en_core_web_sm')
 # sp = spacy.load('en', disable=['parser', 'ner'])
 
-@lru_cache()
+@lru_cache(maxsize=None)
 def clean_string(text_string):
     '''
     A function to clean a string using SpaCy, removing stop-words, non-alphanumeric characters, and pronouns
@@ -69,12 +69,16 @@ def clean_content(df):
     Argument: a dataframe with the column 'content'
     Ouput: same dataframe with a new 'cleaned_content' column
     '''
+
+    # Initialize list of cleaned content strings
     clean_content= []
 
+    # Call clean_string() for each row in the data frame and append to clean_content list
     for row in df.content:
 
         clean_content.append(clean_string(row))
 
+    # Append clean_content list to the data frame
     df['clean_content'] = clean_content
 
     return df 
@@ -83,14 +87,16 @@ news_df = clean_content(news_df)
 
 
 if __name__ == '__main__':
-    test = news_df.loc[1,'content']
+    example = news_df.loc[1,'content']
+
+    doc = sp(example)
 
     for token in doc[0:50]:
         print('%s, %s, %s, %s,' % (token.text, token.lemma_, token.is_alpha, token.is_stop))
     
-    clean = clean_string(test)
-    test
-    clean
+    example_clean = clean_string(example)
+    example
+    example_clean
 
     # This doesn't seem to be doing a good job, ie, labeling mathematical concepts as nationalities etc.
     for entity in doc.ents:
@@ -110,10 +116,49 @@ vectorizer = TfidfVectorizer(analyzer = 'word', min_df = 5, ngram_range = (1,3),
 X = vectorizer.fit_transform(news_df['clean_content'])
 X.shape
 
-# Make the matrix dense and create a dataframe for later use
-tfidf = X.todense()
-tfidf_df = pd.DataFrame(tfidf, columns = vectorizer.get_feature_names())
+# tf-idf is an unsupervised technique that is meant to determine which words distinguished documents 
+# to get that matrix, it multiples the idf (inverse document frequency) vector, which gives scores that appear more frequently accorss documents lower scores because they are deemed to be less important, 
+# by the document term frequency
 
-# Plot word cloud of words with highest and lowest tf idf scores like in BESBES or the sklearn book
+# We can inspect which words tf-idf found most important 
+terms = vectorizer.get_feature_names() # get the list of terms in the vocabulary
+tfidf = X.todense() # Make the matrix dense 
+tfidf_max = np.array(tfidf.max(axis = 0)).ravel() # get the max tfidf weight of each term and flatten to a 1D array
+
+# Plot a word cloud for more frequent and least frequent words
+def plot_word_cloud(frequencies = tfidf_max, terms = terms, most_frequent = True):
+
+    '''
+    Plots a word cloud for the most important or least frequent words in a list
+    
+    Arguments: 
+    frequencies: a (terms,) sized array of frequencies
+    terms: a list or array of terms
+    most_frequent: if True, plots most frequent, if False, plots least frequent 
+    
+    Ouput: a word cloud
+    
+    '''
+    # Sort frequency array in ascending and returns an array of indices
+    sorted_frequencies = frequencies.argsort()
+
+    # Create word cloud with highest or lowest 75 terms, joined into a string
+    if most_frequent == True:
+        cloud = WordCloud().generate(text=(' '.join(np.array(terms)[sorted_frequencies[-75:]])))
+        title = "Features with highest tf-idf"
+    else:
+        cloud = WordCloud().generate(text = (' '.join(np.array(terms)[sorted_frequencies[75:]])))
+        title = "Features with lowest tf-idf"
+    
+    plt.imshow(cloud, interpolation="bilinear")
+    plt.axis("off")
+    plt.title(title)
+    plt.show()
+
+
+plot_word_cloud()
+plot_word_cloud(most_frequent = False)
 # Lower scores mean less informative, higher mean more
 
+# Create a dataframe for later use
+tfidf_df = pd.DataFrame(tfidf, columns = terms)
