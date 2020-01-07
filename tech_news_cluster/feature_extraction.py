@@ -62,6 +62,7 @@ def clean_string(text_string):
 
     return clean
 
+
 def clean_content(df):
     '''
     A function to clean all the strings in a whole of a corpus
@@ -113,20 +114,18 @@ if __name__ == '__main__':
 vectorizer = TfidfVectorizer(analyzer = 'word', min_df = 5, ngram_range = (1,3), max_df = 0.15)
 
 # Returns the sparse tf-idf weighted document-term matrix
-X = vectorizer.fit_transform(news_df['clean_content'])
-X.shape
+if __name__ == '__main__':
+    X = vectorizer.fit_transform(news_df['clean_content'])
+    X.shape
 
 # tf-idf is an unsupervised technique that is meant to determine which words distinguished documents 
 # to get that matrix, it multiples the idf (inverse document frequency) vector, which gives scores that appear more frequently accorss documents lower scores because they are deemed to be less important, 
 # by the document term frequency
 
 # We can inspect which words tf-idf found most important 
-terms = vectorizer.get_feature_names() # get the list of terms in the vocabulary
-tfidf = X.todense() # Make the matrix dense 
-tfidf_max = np.array(tfidf.max(axis = 0)).ravel() # get the max tfidf weight of each term and flatten to a 1D array
 
 # Plot a word cloud for more frequent and least frequent words
-def plot_word_cloud(frequencies = tfidf_max, terms = terms, most_frequent = True):
+def plot_tfidf_word_cloud(frequencies = tfidf_max, terms = terms, most_frequent = True):
 
     '''
     Plots a word cloud for the most important or least frequent words in a list
@@ -155,10 +154,13 @@ def plot_word_cloud(frequencies = tfidf_max, terms = terms, most_frequent = True
     plt.title(title)
     plt.show()
 
+if __name__ == '__main__':
+    terms = vectorizer.get_feature_names() # get the list of terms in the vocabulary
+    tfidf = X.todense() # Make the matrix dense 
+    tfidf_max = np.array(tfidf.max(axis = 0)).ravel() # get the max tfidf weight of each term and flatten to a 1D array
+    plot_tfidf_word_cloud()
+    plot_tfidf_word_cloud(most_frequent = False)
 
-plot_word_cloud()
-plot_word_cloud(most_frequent = False)
+
 # Lower scores mean less informative, higher mean more
 
-# Create a dataframe for later use
-tfidf_df = pd.DataFrame(tfidf, columns = terms)
