@@ -3,28 +3,25 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import os
-
+from sklearn.externals import joblib
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
-
-
 import spacy
+
+
+
+# st.title("How Does Unsupervised Learning Group Tech News Articles?")
+st.title("Categorize an Tech Article Based on Unsupervized Clustering")
+
+st.empty()
 
 @st.cache(allow_output_mutation= True)
 def load_model(name):
     return spacy.load(name)
 
-
 sp = load_model('en_core_web_sm')
 
-
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.cluster import MiniBatchKMeans, KMeans
-
-
-
-
-# @st.cache(allow_output_mutation= True)
+# @st.cache(allow_output_mutation=True)
 def clean_string(text_string):
     '''
     A function to clean a string using SpaCy, removing stop-words, non-alphanumeric characters, and pronouns
@@ -54,87 +51,28 @@ def clean_string(text_string):
     return clean
 
 
-# @st.cache(allow_output_mutation= True)
-def clean_content(df):
-    '''
-    A function to clean all the strings in a whole of a corpus
+# Load the models
 
-    Argument: a dataframe with the column 'content'
-    Ouput: same dataframe with a new 'cleaned_content' column
-    '''
+@st.cache(allow_output_mutation=True)
+def load_models():
+    vectorizer = joblib.load('models/tfidf_vectorizer.sav')
 
-    # Initialize list of cleaned content strings
-    clean_content= []
+    kmeans = joblib.load('models/kmeans.sav')
 
-    # Call clean_string() for each row in the data frame and append to clean_content list
-    for row in df.content:
-
-        clean_content.append(clean_string(row))
-
-    # Append clean_content list to the data frame
-    df['clean_content'] = clean_content
-
-    return df 
-
-
-from clean_data import news_df
-
-news_df = clean_content(news_df)
-
-@st.cache
-def vectorize_training_data():
-    vectorizer = TfidfVectorizer(analyzer = 'word', min_df = 5, ngram_range = (1,3), max_df = 0.15)
-    X = vectorizer.fit_transform(news_df['clean_content'])
-    
-    returns = (vectorizer, X)
-
+    returns = (vectorizer, kmeans)
     return returns
 
-vectorizer, X = vectorize_training_data()
+vectorizer, kmeans = load_models()
 
-
-@st.cache
-def run_kmeans():
-    kmeans =  KMeans(n_clusters = 14, init = 'k-means++', random_state= 42)
-
-    cluster_labels = kmeans.fit_predict(X)
-
-    returns = (kmeans, cluster_labels)
-
-    return returns
-
-kmeans, cluster_labels = run_kmeans()
-
-k = 14
 terms = vectorizer.get_feature_names()
 
-@st.cache
-def print_word_cloud_per_cluster():
-    sorted_centroids = kmeans.cluster_centers_.argsort()[:, ::-1]
+k = 14
 
-    j = 2
-    while j < k:
-        f, axs = plt.subplots(1,2, figsize = [15, 5])
-        
-        # for each of the two axes, create a word cloud for that cluster's most important terms, and display it
-        for ax, i in zip(axs, range(j-2, j)):
-            cloud = WordCloud().generate(text=(' '.join(np.array(terms)[sorted_centroids[i, :75]])))
-            title = "Important Words in Cluster {}".format(i)
 
-            ax.imshow(cloud, interpolation="bilinear")
-            ax.set_title(title, size = 20)
-            ax.grid(False)
-            ax.axis("off")
-            
-            # update j for next loop
-            j=j+1
-        
-        plt.show()
-
-print_word_cloud_per_cluster()
+input_string = st.text_area("Paste article content here")
 
 # @st.cache(allow_output_mutation=True)
-def predict(input_string = None, filename = None):
+def predict(input_string = None):
     '''
     A function to clean, vectorize, and predict the kmeans cluster of a new string
     
@@ -142,43 +80,108 @@ def predict(input_string = None, filename = None):
     
     Output: a prediction and wordcloud for the document
     '''
-    if filename != None:
-        with open(os.path.join(PROJ_ROOT_DIR, "content_to_predict", filename), 'r') as file:
-            input_string = file.read()
-        print('Processing file')
-        # Clean the string
-        clean = clean_string(input_string)
     
     if input_string != None:
-        print('Processing text string')
         clean = clean_string(input_string)
-    
-    print('String has been cleaned')
 
     # Vectorize the string
     Y = vectorizer.transform([clean])
-    
-    print('String has been vectorized')
 
     # Predict the cluster label
     prediction = kmeans.predict(Y)
-    
+
+    returns = (prediction, clean)
+    return returns
+
+pred_text = st.empty()
+
+if len(input_string) > 0:
+    prediction, clean = predict(input_string=input_string)
+    pred_text = st.title("Article belongs to cluster " + str(prediction))
+
+
+def print_prediction_cloud(clean):
     # Generate the wordcloud
-    cloud = WordCloud().generate(clean)
+    cloud = WordCloud(background_color='white').generate(clean)
     
     # Add the prediction to the title of the word cloud
-    title = "Cluster Prediction for Article {}".format(prediction)
+    # title = "Cluster Prediction for Article {}".format(prediction)
     
     # Show the word cloud
-    plt.figure(figsize = [15,20])
+    f = plt.figure()
     plt.imshow(cloud, interpolation="bilinear")
     plt.axis("off")
-    plt.title(title, size =20)
-    plt.show();
+    # plt.title(title, size =20)
+
+    return f
     
 
-input_string = st.text_area("Article content")
+prediction_cloud = st.checkbox("Display WordCloud of Article Text?", value = False)
 
-# st.title("Dogs all over the world")
+if prediction_cloud == True:
+    f = print_prediction_cloud(clean)
+    st.pyplot(f)
 
-predict(input_string)
+
+# st.markdown('\n \n \n *After cleaning article content and running KMeans on articles from seven news sites, 14 clusters were identified*')
+
+
+st.subheader('So what does that mean? Here are the most important words in each cluster:')
+
+@st.cache
+def calc_centroids():
+    sorted_centroids = kmeans.cluster_centers_.argsort()[:, ::-1]
+    return sorted_centroids
+
+sorted_centroids = calc_centroids()
+
+@st.cache
+def print_top_words_by_cluster(sorted_centroids, i):
+    cluster = "Cluster %d:" % i
+    words = []
+    for ind in sorted_centroids[i, :14]:
+        if terms[ind].find(' ') == -1:
+            words.append(terms[ind])
+    returns = (cluster, words)
+    return returns
+
+
+# top_words = st.checkbox('Display', value = True)
+
+# if top_words == True:
+for i in range(14):
+    cluster, words, = print_top_words_by_cluster(sorted_centroids, i)
+    st.write(cluster, ' '.join(words))
+
+
+@st.cache
+def print_word_cloud_per_cluster(j=2):
+    
+    if j >= k:
+        return 
+    
+    else:
+        f, axs = plt.subplots(1,2, figsize = [15, 5])
+        
+        # for each of the two axes, create a word cloud for that cluster's most important terms, and display it
+        for ax, i in zip(axs, range(j-2, j)):
+            cloud = WordCloud(background_color='white').generate(text=(' '.join(np.array(terms)[sorted_centroids[i, :75]])))
+            title = "Important Words in Cluster {} \n".format(i)
+
+            ax.imshow(cloud, interpolation="bilinear")
+            ax.set_title(title, size = 30)
+            ax.grid(False)
+            ax.axis("off")
+        st.pyplot(f)
+            
+        # update j for next loop
+        print_word_cloud_per_cluster(j=j+2)
+    
+        
+
+# st.pyplot(print_word_cloud_per_cluster())
+st.subheader("View word cloud for top words of each cluster?")
+cluster_cloud = st.checkbox("Display", value = False)
+
+if cluster_cloud == True:
+    print_word_cloud_per_cluster()

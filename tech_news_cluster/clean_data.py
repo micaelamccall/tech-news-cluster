@@ -3,7 +3,8 @@ from settings import PROJ_ROOT_DIR, DATA_PATH
 import pandas as pd
 import os
 import datetime
-
+from functools import lru_cache
+import spacy
 
 
 def load_news_data():
@@ -35,10 +36,12 @@ if __name__ == '__main__':
 
 
 
-def process_date_feature():
+def process_date_feature(df=news_df):
     """
     A function to process the various dates into a consistant isformate
     """
+
+    news_df = df
 
     # Take out the time from the date columns by replacing the dates in publications that have time included without the time
     repl_dict = {}
@@ -119,6 +122,8 @@ def process_date_feature():
     news_df['day'] = day
     news_df['month'] = month
 
+    news_df=news_df.drop(columns = ['daymonth'])
+
     del(day, month)
 
     # If any months end with a comma, take that out
@@ -180,6 +185,101 @@ if __name__ == '__main__':
         print(col, type(col))
 
 
+# [x] stopwords
+# [x] proper nouns
+    # take out proper nouns because they don't really tell us much about the topic and they are another source of noise 
+# [x] lemma
+     # [x] POS?
+# [x] n-grams
+# [x] vectorize
 
 
+
+# SpaCy comes with a bunch of pre-built models that tokenize words and also determine if they are alphanumeric, stop words, find their part of speech, lemma, etc.
+# SpaCy's lemmatization comes with part of speech tag built in and assigns the corresponding lemma
+# With NLTK, you have to specify the POS tag in the WordNet or else some things aren't lemmatized correctly
+# SpaCy automatically converts words to lower case
+# From the SpaCy documentation about how their tokenizer works:
+    # "After consuming a prefix or suffix, we consult the special cases again. 
+    # We want the special cases to handle things like “don’t” in English, and we 
+    # want the same rule to work for “(don’t)!“. We do this by splitting off the 
+    # open bracket, then the exclamation, then the close bracket, and finally 
+    # matching the special case"
+
+
+# Initialize spacy with the english model
+sp = spacy.load('en_core_web_sm')
+# sp = spacy.load('en', disable=['parser', 'ner'])
+
+@lru_cache(maxsize=None)
+def clean_string(text_string):
+    '''
+    A function to clean a string using SpaCy, removing stop-words, non-alphanumeric characters, and pronouns
+
+    Argument: a text string
+    Output: a cleaned string
+
+    '''
+
+    # Parse the text string using the english model initialized earlier
+    doc = sp(text_string)
+    
+    # Initialize empty string
+    clean = []
+
+    # Add each token to the list if it is not a stop word, is alphanumeric, and if it's not a pronoun
+    for token in doc:
+        
+        if token.is_alpha == False or token.is_stop == True or token.lemma_ == '-PRON-':
+            pass
+        else:
+            clean.append(token.lemma_)
+
+    # Join the list into a string
+    clean = " ".join(clean)
+
+    return clean
+
+
+def clean_content(df):
+    '''
+    A function to clean all the strings in a whole of a corpus
+
+    Argument: a dataframe with the column 'content'
+    Ouput: same dataframe with a new 'cleaned_content' column
+    '''
+
+    # Initialize list of cleaned content strings
+    clean_content= []
+
+    # Call clean_string() for each row in the data frame and append to clean_content list
+    for row in df.content:
+
+        clean_content.append(clean_string(row))
+
+    # Append clean_content list to the data frame
+    df['clean_content'] = clean_content
+
+    return df 
+
+
+# Perform content cleaning
+if __name__ == '__main__':
+    news_df = clean_content(news_df)
+    news_df.to_csv('tech_news_cluster/data/clean_content.csv')
+
+    example = news_df.loc[1,'content']
+
+    doc = sp(example)
+
+    for token in doc[0:50]:
+        print('%s, %s, %s, %s,' % (token.text, token.lemma_, token.is_alpha, token.is_stop))
+    
+    example_clean = clean_string(example)
+    example
+    example_clean
+
+    # This doesn't seem to be doing a good job, ie, labeling mathematical concepts as nationalities etc.
+    for entity in doc.ents:
+            print(entity.text + ' - ' + entity.label_ + ' - ' + str(spacy.explain(entity.label_)))
 

@@ -1,15 +1,54 @@
-from settings import PROJ_ROOT_DIR
-from feature_extraction import clean_string, vectorizer
-from kmeans import kmeans
+from tech_news_cluster.settings import PROJ_ROOT_DIR
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import os
+from sklearn.externals import joblib
+import spacy
+
+
+
+# Initialize spacy with the english model
+sp = spacy.load('en_core_web_sm')
+
+# A function to clean the new string
+def clean_string(text_string):
+    '''
+    A function to clean a string using SpaCy, removing stop-words, non-alphanumeric characters, and pronouns
+
+    Argument: a text string
+    Output: a cleaned string
+
+    '''
+
+    # Parse the text string using the english model initialized earlier
+    doc = sp(text_string)
+    
+    # Initialize empty string
+    clean = []
+
+    # Add each token to the list if it is not a stop word, is alphanumeric, and if it's not a pronoun
+    for token in doc:
+        
+        if token.is_alpha == False or token.is_stop == True or token.lemma_ == '-PRON-':
+            pass
+        else:
+            clean.append(token.lemma_)
+
+    # Join the list into a string
+    clean = " ".join(clean)
+
+    return clean
+
+# Load the models
+vectorizer = joblib.load('tech_news_cluster/models/tfidf_vectorizer.sav')
+
+kmeans = joblib.load('tech_news_cluster/models/kmeans.sav')
 
 def predict(input_string = None, filename = None):
     '''
     A function to clean, vectorize, and predict the kmeans cluster of a new string
     
-    Arguments: a string, which is the content of an article
+    Arguments: either a string or a filename including extension as a string
     
     Output: a prediction and wordcloud for the document
     '''
@@ -57,7 +96,7 @@ def save_input_string_as_file(input_string, name = 'article_content'):
 
 
 
-
+# Test
 
 input_string = '''
 
@@ -95,4 +134,4 @@ images, likenesses, videos or copyrights, and must remove their images, likeness
 
 “The defendants’ conduct before and during this trial was despicable," said John O’Brien, an attorney also representing the plaintiffs. "This case should be a call to lawmakers to enact proactive laws preventing this type of exploitation rather than relying on lawsuits such as this to provide justice to victims.”'''
 
-
+predict(input_string= input_string)
