@@ -9,7 +9,7 @@ from sklearn.externals import joblib
 
 
 # Load cleaned data
-news_df = pd.read_csv('tech_news_cluster/data/clean_content.csv')
+news_df = pd.read_csv('data/clean_content.txt')
 
 
 # Bag-of-words representation: how many times does each word appear in a document. CountVectorizer creates a bag-of-words by createing a matrix where each feature is a word in the vocabulary and each row is the frequency in each document

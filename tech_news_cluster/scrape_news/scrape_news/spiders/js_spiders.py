@@ -1,8 +1,8 @@
 import scrapy
 from datetime import datetime
 import re
-# from scrape_news.scrape_news.items import ScrapeNewsItem
-from scrape_news.items import ScrapeNewsItem
+from scrape_news.scrape_news.items import ScrapeNewsItem
+# from scrape_news.items import ScrapeNewsItem
 from scrapy_splash import SplashRequest
 
 
