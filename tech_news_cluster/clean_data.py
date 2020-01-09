@@ -266,7 +266,7 @@ def clean_content(df):
 # Perform content cleaning
 if __name__ == '__main__':
     news_df = clean_content(news_df)
-    news_df.to_csv('tech_news_cluster/data/clean_content.csv')
+    news_df.to_csv('tech_news_cluster/data/clean_content.txt')
 
     example = news_df.loc[1,'content']
 

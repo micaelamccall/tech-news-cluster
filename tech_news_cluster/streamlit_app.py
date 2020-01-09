@@ -55,9 +55,9 @@ def clean_string(text_string):
 
 @st.cache(allow_output_mutation=True)
 def load_models():
-    vectorizer = joblib.load('models/tfidf_vectorizer.sav')
+    vectorizer = joblib.load('tech_news_cluster/models/tfidf_vectorizer.sav')
 
-    kmeans = joblib.load('models/kmeans.sav')
+    kmeans = joblib.load('tech_news_cluster/models/kmeans.sav')
 
     returns = (vectorizer, kmeans)
     return returns
@@ -65,8 +65,8 @@ def load_models():
 vectorizer, kmeans = load_models()
 
 terms = vectorizer.get_feature_names()
-
-k = 14
+ 
+k = 15
 
 
 input_string = st.text_area("Paste article content here")

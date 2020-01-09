@@ -49,10 +49,10 @@ PUBLICATIONS = [
     # "Vox",
     # "Vice",
     # "Wired",
-    # "NYTimes",
-    # "WaPo",
-    "Atlantic",
-    "Buzzfeed",
+    "NYTimes",
+    "WaPo",
+    # "Atlantic",
+    # "Buzzfeed",
     # "Gradient"
 ]
 

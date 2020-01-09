@@ -3,7 +3,6 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import MiniBatchKMeans, KMeans
 from sklearn.metrics import silhouette_score, silhouette_samples
-from sklearn.pipeline import Pipeline
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import seaborn as sns
@@ -61,7 +60,7 @@ if __name__ == '__main__':
 
 
 # Chosen K
-k = 14
+k = 15
 
 # pipe = Pipeline([
 #     ("vectorizer", TfidfVectorizer(analyzer = 'word', min_df = 5, ngram_range = (1,3), max_df = 0.15)),
