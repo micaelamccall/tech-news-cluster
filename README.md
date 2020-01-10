@@ -50,18 +50,32 @@ Project scripts and Jupyter Notebook are in the tech-news-cluster directory
 I identfied 15 clusters with the following top terms
 
 Cluster 0: tiktok china chinese huawei hong kong xinjiang camp uighurs beijing internment
+
 Cluster 1: learning openai robot art deep train neural task dataset
+
 Cluster 2: charity tax foundation philanthropy gates donate billionaire kidney donor donation wealth giving
+
 Cluster 3: instagram influencer youtube ad meme follower brand tumblr creator star tweet fan
+
 Cluster 4: patient vaccine nuclear disease outbreak ebola brain weapon egg cancer medical crispr
+
 Cluster 5: climate carbon energy emission fire air pollution gas renewable fuel clean
+
 Cluster 6: apple camera device portal iphone ring airpods store police privacy card headphone
+
 Cluster 7: facial recognition surveillance police camera ban privacy
+
 Cluster 8: meat burger plant beyond impossible foods vegan
+
 Cluster 9: opioid prison drug gun addiction justice crime criminal sackler incarceration purdue
+
 Cluster 10: deepfake election tweet musk zuckerberg fake unsworth court voter whatsapp
+
 Cluster 11: programming python java web javascript programmer command script file variable html
+
 Cluster 12: student college water employee bank parent debt bias academic well
+
 Cluster 13: amazon alexa delivery seller assistant contractor bezos contract privacy driver customer speaker
+
 Cluster 14: income poverty uber cash car tax worker eitc poor driver ubi
 
