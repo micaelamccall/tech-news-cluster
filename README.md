@@ -29,9 +29,14 @@ Code for scraping part of the project is in "scrape_news" directory.
 
 I aimed to find clusters in tech news articles based on the full content of the article and understand themes or constructs that can summarize the clusters.
 
+# Setup
+
+- after cloning the repo, my Anaconda virtual environment can be created by running `conda env create -f environment.yml` in the terminal
+- to use the Streamlit app to predict the category of a tech news article, `cd` into `tech_news_cluster` and run `streamlit run streamlit_app.py` in the terminal
+
 # Usage
 
-Project scripts and Jupyter Notebook are in the tech-news-cluster directory
+Project scripts and Jupyter Notebook are in the `tech-news-cluster` directory
 
 - `tech_news_cluster.ipynb` is the notebook with all the script
 

@@ -13,7 +13,7 @@ import spacy
 # st.title("How Does Unsupervised Learning Group Tech News Articles?")
 st.title("Categorize an Tech Article Based on Unsupervized Clustering")
 
-st.empty()
+st.markdown("![gif](https://media.giphy.com/media/UV8mPZc6WjCrm/giphy.gif)")
 
 @st.cache(allow_output_mutation= True)
 def load_model(name):
@@ -53,23 +53,28 @@ def clean_string(text_string):
 
 # Load the models
 
-@st.cache(allow_output_mutation=True)
-def load_models():
-    vectorizer = joblib.load('tech_news_cluster/models/tfidf_vectorizer.sav')
-
-    kmeans = joblib.load('tech_news_cluster/models/kmeans.sav')
+@st.cache(allow_output_mutation= True)
+def load_model():
+    vectorizer = joblib.load('models/tfidf_vectorizer.sav')
+    kmeans = joblib.load('models/kmeans.sav')
 
     returns = (vectorizer, kmeans)
+
     return returns
 
-vectorizer, kmeans = load_models()
+vectorizer, kmeans = load_model()
+# vectorizer = joblib.load(open('models/tfidf_vectorizer.sav', "rb"))
+# kmeans = joblib.load(open('models/kmeans.sav', "rb"))
+# st.write(type(kmeans))
+
+# from predict import vectorizer, kmeans
 
 terms = vectorizer.get_feature_names()
  
 k = 15
 
 
-input_string = st.text_area("Paste article content here")
+input_string = st.text_area("Article to Predict", "Paste article content here")
 
 # @st.cache(allow_output_mutation=True)
 def predict(input_string = None):
@@ -95,12 +100,18 @@ def predict(input_string = None):
 
 pred_text = st.empty()
 
-if len(input_string) > 0:
+
+# pred_button = st.button("Predict")
+
+if input_string == 'Paste article content here':
+    pass
+else:
     prediction, clean = predict(input_string=input_string)
-    pred_text = st.title("Article belongs to cluster " + str(prediction))
+    pred_text = st.title("Article belongs to cluster " + str(list(prediction)[0]))
 
 
-def print_prediction_cloud(clean):
+
+def print_prediction_cloud(clean, prediction):
     # Generate the wordcloud
     cloud = WordCloud(background_color='white').generate(clean)
     
@@ -116,17 +127,22 @@ def print_prediction_cloud(clean):
     return f
     
 
-prediction_cloud = st.checkbox("Display WordCloud of Article Text?", value = False)
+pred_cloud = st.button("Display WordCloud of Article Text")
 
-if prediction_cloud == True:
-    f = print_prediction_cloud(clean)
+if pred_cloud == True:
+    prediction, clean = predict(input_string=input_string)
+    f = print_prediction_cloud(clean, prediction)
     st.pyplot(f)
+
+
+
 
 
 # st.markdown('\n \n \n *After cleaning article content and running KMeans on articles from seven news sites, 14 clusters were identified*')
 
 
-st.subheader('So what does that mean? Here are the most important words in each cluster:')
+st.title('So what does that mean? ')
+st.subheader('View the most important words in each cluster')
 
 @st.cache
 def calc_centroids():
@@ -146,15 +162,9 @@ def print_top_words_by_cluster(sorted_centroids, i):
     return returns
 
 
-# top_words = st.checkbox('Display', value = True)
-
-# if top_words == True:
-for i in range(14):
-    cluster, words, = print_top_words_by_cluster(sorted_centroids, i)
-    st.write(cluster, ' '.join(words))
 
 
-@st.cache
+# @st.cache
 def print_word_cloud_per_cluster(j=2):
     
     if j >= k:
@@ -180,8 +190,18 @@ def print_word_cloud_per_cluster(j=2):
         
 
 # st.pyplot(print_word_cloud_per_cluster())
-st.subheader("View word cloud for top words of each cluster?")
-cluster_cloud = st.checkbox("Display", value = False)
+# st.subheader("View word cloud for top words of each cluster?")
+# cluster_cloud = st.checkbox("Display", value = False)
 
-if cluster_cloud == True:
+view_option = st.radio("", ("View as list", "View as WordCloud"))
+
+
+if view_option == "View as WordCloud":
     print_word_cloud_per_cluster()
+if view_option == "View as list":
+    for i in range(14):
+        cluster, words = print_top_words_by_cluster(sorted_centroids, i)
+        st.write(cluster, ' '.join(words))
+
+
+

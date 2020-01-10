@@ -1,4 +1,4 @@
-from tech_news_cluster.settings import PROJ_ROOT_DIR
+# from tech_news_cluster.settings import PROJ_ROOT_DIR
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import os
