@@ -239,50 +239,6 @@ class BuzzfeedSpider(scrapy.Spider):
         yield item
 
 
-class VoxSpider(scrapy.Spider):
-    name = "vox_spider"
-
-    # Start URLs
-    start_urls = ["https://www.vox.com/future-perfect"]
-
-    npages = 5
-
-    # Getting multiple pages of articles
-    for i in range(2, npages):
-        start_urls.append("https://www.vox.com/future-perfect/archives/"+str(i)+"")
-
-    def parse(self, response):
-        for href in response.xpath("//div[contains(@class, 'c-compact-river__entry')]//a[contains(@class, 'c-entry-box--compact__image-wrapper')]//@href"):
-            url = href.extract()
-            yield scrapy.Request(url, callback=self.parse_dir_contents)
-        
-    def parse_dir_contents(self, response):
-        item = ScrapeNewsItem()
-
-        # Getting title
-        item['title'] = response.xpath("//div[contains(@class, 'c-entry-hero c-entry-hero--default ')]//h1/descendant::text()").extract()[0]
-
-        # Gettings date
-        item['date'] = response.xpath("//div[contains(@class, 'c-entry-hero c-entry-hero--default ')]//div[contains(@class, 'c-byline')]//time/descendant::text()").extract()[0].strip()
-
-        # Getting summary
-        item['summary'] = response.xpath("//div[contains(@class, 'c-entry-hero c-entry-hero--default ')]//p/descendant::text()").extract()[0]
-
-        # Getting author
-        item['author'] = response.xpath("//div[contains(@class, 'c-entry-hero c-entry-hero--default ')]//div[contains(@class, 'c-byline')]//span[contains(@class, 'c-byline__author-name')]/descendant::text()").extract()[0]
-
-        # Get URL
-        item['url'] = response.xpath("//meta[@property='og:url']/@content").extract()
-
-        # Get publication
-        item['publication'] = 'Vox'
-
-        # Get content
-        content_list = response.xpath("//div[contains(@class, 'c-entry-content')]//descendant::text()").extract()
-        content_list = [content_fragment.strip() for content_fragment in content_list]
-        item['content'] = ' '.join(content_list).strip()
-
-        yield item
 
 class GradientSpider(scrapy.Spider):
     name = "gradient_spider"

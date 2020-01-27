@@ -1,5 +1,5 @@
 import os
-from tech_news_cluster.settings import PUBLICATIONS
+from settings import PUBLICATIONS
 from scrape_news.scrape_news.spiders.spiders import *
 from scrape_news.scrape_news.spiders.js_spiders import *
 from scrapy.utils.project import get_project_settings

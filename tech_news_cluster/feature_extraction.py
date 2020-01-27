@@ -9,7 +9,7 @@ from sklearn.externals import joblib
 
 
 # Load cleaned data
-news_df = pd.read_csv('tech_news_cluster/data/clean_content.txt')
+news_df = pd.read_csv('data/clean_content.txt')
 
 
 # Bag-of-words representation: how many times does each word appear in a document. CountVectorizer creates a bag-of-words by createing a matrix where each feature is a word in the vocabulary and each row is the frequency in each document
@@ -27,7 +27,7 @@ X = vectorizer.fit_transform(news_df['clean_content'])
 
 # Save model
 validation.check_is_fitted(vectorizer, '_tfidf')
-joblib.dump(vectorizer, 'tech_news_cluster/models/tfidf_vectorizer.sav')
+joblib.dump(vectorizer, 'models/tfidf_vectorizer.sav')
 
 X.shape
 

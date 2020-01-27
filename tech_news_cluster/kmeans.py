@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
 
 # Chosen K
-k = 15
+k = 14
 
 # pipe = Pipeline([
 #     ("vectorizer", TfidfVectorizer(analyzer = 'word', min_df = 5, ngram_range = (1,3), max_df = 0.15)),
@@ -73,7 +73,7 @@ cluster_labels = kmeans.fit_predict(X)
 
 # Save model
 validation.check_is_fitted(kmeans, 'cluster_centers_')
-joblib.dump(kmeans, 'tech_news_cluster/models/kmeans.sav')
+joblib.dump(kmeans, 'models/kmeans.sav')
 
 
 def print_top_words_by_cluster():
