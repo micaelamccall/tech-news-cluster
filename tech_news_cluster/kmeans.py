@@ -20,11 +20,13 @@ from feature_extraction import vectorizer, X, terms
 # Silhouette score measures the distance between clusters by measuring how close each point in one cluster is to the neighboring cluster. A measure between [-1,1], higher scores mean more distinct clusters
 # The best number of clusters will be when the SSE curve bends, and that maximizes silhouette score
 
-def choose_k(max_k):
+def choose_k(max_k, X):
     '''
     A function to display plots of average silhouette score and average SSE (inertia) for various numbers of clusters
 
-    Arguments: max_k = the maximum number of clusters to test 
+    Arguments: 
+    max_k = the maximum number of clusters to test 
+    X = the document-term matrix to train KMeans
 
     Ouput: line plots for both silhouette scores and SSE
     '''
@@ -56,11 +58,12 @@ def choose_k(max_k):
     plt.show()
 
 if __name__ == '__main__':
-    choose_k(25)
+    choose_k(25, X)
+    
 
 
 # Chosen K
-k = 14
+k = 15
 
 # pipe = Pipeline([
 #     ("vectorizer", TfidfVectorizer(analyzer = 'word', min_df = 5, ngram_range = (1,3), max_df = 0.15)),
@@ -72,11 +75,13 @@ kmeans =  KMeans(n_clusters = k, init = 'k-means++', random_state= 42)
 cluster_labels = kmeans.fit_predict(X)
 
 # Save model
-validation.check_is_fitted(kmeans, 'cluster_centers_')
-joblib.dump(kmeans, 'models/kmeans.sav')
+if __name__ == '__main__':
+    validation.check_is_fitted(kmeans, 'cluster_centers_')
+    joblib.dump(kmeans, 'models/kmeans.sav')
 
 
-def print_top_words_by_cluster():
+
+def print_top_words_by_cluster(k):
 
     '''
     A function to plot the top terms in each cluster of the kmeans model
@@ -86,14 +91,14 @@ def print_top_words_by_cluster():
     sorted_centroids = kmeans.cluster_centers_.argsort()[:, ::-1]
 
     # for each of the 15 clusters (15 rows in sorted centroids dataset), print the first several 1 gram words (words with highest coordinate values and thus more important for the cluster)
-    for i in range(15):
+    for i in range(k):
         print("Cluster %d:" % i, end='')
         for ind in sorted_centroids[i, :15]:
             if terms[ind].find(' ') == -1:
                 print(' %s' % terms[ind], end='')
         print()
     
-def plot_silhouette_scores():
+def plot_silhouette_scores(X, k, cluster_labels):
     '''
     A function to plot the silhouette scores in each cluster of the kmeans model
     '''
@@ -105,7 +110,7 @@ def plot_silhouette_scores():
 
     # For each cluster, plot the silhouette scores for each sample
     y_lower = 10
-    for i in range(15):
+    for i in range(k):
 
         # Values for each cluster
         ith_cluster_sil_values = sample_sil_values[cluster_labels == i]
@@ -118,7 +123,7 @@ def plot_silhouette_scores():
         # The upper limit of that cluster group is the lower limit plus the size of the cluster
         y_upper = y_lower + size_cluster_i
         
-        color = cm.nipy_spectral(float(i) / 15)
+        color = cm.nipy_spectral(float(i) / k)
 
         # Fill the length of the silhouette score on the x axis, on the y axis between the upper and lower limits of the cluster group 
         ax1.fill_betweenx(np.arange(y_lower, y_upper),
@@ -138,3 +143,4 @@ def plot_silhouette_scores():
     ax1.set_xlabel("Silhouette scores")
     ax1.set_title("Silhouette Plot for Various Clusters")
 
+print_top_words_by_cluster(k)

@@ -26,10 +26,12 @@ vectorizer = TfidfVectorizer(analyzer = 'word', min_df = 5, ngram_range = (1,3),
 X = vectorizer.fit_transform(news_df['clean_content'])
 
 # Save model
-validation.check_is_fitted(vectorizer, '_tfidf')
-joblib.dump(vectorizer, 'models/tfidf_vectorizer.sav')
 
-X.shape
+if __name__ == '__main__':
+    validation.check_is_fitted(vectorizer, '_tfidf')
+    joblib.dump(vectorizer, 'models/tfidf_vectorizer.sav')
+
+    X.shape
 
 # tf-idf is an unsupervised technique that is meant to determine which words distinguished documents 
 # to get that matrix, it multiples the idf (inverse document frequency) vector, which gives scores that appear more frequently accorss documents lower scores because they are deemed to be less important, 
@@ -74,4 +76,3 @@ if __name__ == '__main__':
     plot_tfidf_word_cloud()
     plot_tfidf_word_cloud(most_frequent = False)
 # Lower scores mean less informative, higher mean more
-

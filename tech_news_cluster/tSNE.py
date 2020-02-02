@@ -3,15 +3,23 @@ import seaborn as sns
 from sklearn.manifold import TSNE
 import pandas as pd
 
-from tech_news_cluster.feature_extraction import tfidf
-from tech_news_cluster.kmeans import cluster_labels
+from feature_extraction import tfidf, X_svd
+from kmeans import cluster_labels
 
-def tsne_plot():
+def tsne_plot(array):
+    '''
+    A function to plot a tsne plot
+    
+    Arguments: 
+        array: a dense ndarray
+        
+    Output: prints a plot
+    '''
     # t-SNE is a feature reduction technique that reduces features to 2 dimensions, mainly used just for plotting purposes
     tsne=TSNE(random_state = 42)
 
     # Array with 2 dimensions for each sample
-    tsne_features=tsne.fit_transform(tfidf)
+    tsne_features=tsne.fit_transform(array)
 
     # Data frame of cluster labels and t-SNE features for plotting
     tsne_df = pd.DataFrame({'clusters':cluster_labels, 'tsne0':tsne_features[:,0], 'tsne1':tsne_features[:,1]})
@@ -27,3 +35,6 @@ def tsne_plot():
 
     plt.show()
 
+
+tsne_plot(tfidf)
+tsne_plot(X_svd)
