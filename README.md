@@ -2,6 +2,7 @@
 
 *python | webscraping | natural language processing | kmeans | t-sne*
 
+![image](tech_news_cluster/assets/image.jpeg)
 # Intro
 
 It started in July 2019, when I stumbled the phrase that AI poses “an existential threat” to humanity. I didn’t know what that meant at the time: a threat to human existence. For some reason, I found that claim to be satisfyingly bold, and I wanted to know more. Embarking into a clickhole typical of my obsessive nature, I subscribed to some news sites on AI and started reading way more tech news.

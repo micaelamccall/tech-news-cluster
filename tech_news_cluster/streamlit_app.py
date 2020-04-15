@@ -13,7 +13,8 @@ import spacy
 # st.title("How Does Unsupervised Learning Group Tech News Articles?")
 st.title("Categorize an Tech Article Based on Unsupervized Clustering")
 
-st.markdown("![gif](https://media.giphy.com/media/UV8mPZc6WjCrm/giphy.gif)")
+# st.markdown("![image](/assets/image.jpeg)")
+st.image("assets/image.png")
 
 @st.cache(allow_output_mutation= True)
 def load_model(name):
@@ -140,7 +141,7 @@ if pred_cloud == True:
 
 # st.markdown('\n \n \n *After cleaning article content and running KMeans on articles from seven news sites, 14 clusters were identified*')
 
-
+st.image("assets/image2.png")
 st.title('So what does that mean? ')
 st.subheader('View the most important words in each cluster')
 
