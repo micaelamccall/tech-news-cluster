@@ -7,7 +7,7 @@ from sklearn.externals import joblib
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import spacy
-
+import en_core_web_sm
 
 
 # st.title("How Does Unsupervised Learning Group Tech News Articles?")
