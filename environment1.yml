@@ -1,4 +1,4 @@
-name: py2020
+name: tech-news-cluster
 channels:
   - plotly
   - defaults
