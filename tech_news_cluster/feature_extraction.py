@@ -4,7 +4,7 @@ import pandas as pd
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from sklearn.utils import validation
-from sklearn.externals import joblib
+import joblib
 
 
 

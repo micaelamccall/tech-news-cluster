@@ -11,7 +11,7 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 from functools import lru_cache
 from sklearn.utils import validation
-from sklearn.externals import joblib
+import joblib
 
 from feature_extraction import vectorizer, X, terms
 

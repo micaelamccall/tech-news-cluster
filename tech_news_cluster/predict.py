@@ -2,7 +2,7 @@
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import os
-from sklearn.externals import joblib
+import joblib
 import spacy
 
 
