@@ -3,11 +3,11 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import os
-from sklearn.externals import joblib
+import joblib
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import spacy
-import en_core_web_sm
+# import en_core_web_sm
 
 
 # st.title("How Does Unsupervised Learning Group Tech News Articles?")
@@ -16,13 +16,12 @@ st.title("Categorize an Tech Article Based on Unsupervized Clustering")
 # st.markdown("![image](/assets/image.jpeg)")
 st.image("assets/image.png")
 
-@st.cache(allow_output_mutation= True)
+@st.cache_data
 def load_model(name):
     return spacy.load(name)
 
-sp = load_model('en_core_web_sm')
+sp = spacy.load("en_core_web_sm")
 
-# @st.cache(allow_output_mutation=True)
 def clean_string(text_string):
     '''
     A function to clean a string using SpaCy, removing stop-words, non-alphanumeric characters, and pronouns
@@ -54,10 +53,10 @@ def clean_string(text_string):
 
 # Load the models
 
-@st.cache(allow_output_mutation= True)
+@st.cache_data
 def load_model():
-    vectorizer = joblib.load('models/tfidf_vectorizer.sav')
-    kmeans = joblib.load('models/kmeans.sav')
+    vectorizer = joblib.load('models/tfidf_vectorizer_new.sav')
+    kmeans = joblib.load('models/kmeans_new.sav')
 
     returns = (vectorizer, kmeans)
 
@@ -77,7 +76,6 @@ k = 15
 
 input_string = st.text_area("Article to Predict", "Paste article content here")
 
-# @st.cache(allow_output_mutation=True)
 def predict(input_string = None):
     '''
     A function to clean, vectorize, and predict the kmeans cluster of a new string
@@ -145,14 +143,14 @@ st.image("assets/image2.png")
 st.title('So what does that mean? ')
 st.subheader('View the most important words in each cluster')
 
-@st.cache
+@st.cache_data
 def calc_centroids():
     sorted_centroids = kmeans.cluster_centers_.argsort()[:, ::-1]
     return sorted_centroids
 
 sorted_centroids = calc_centroids()
 
-@st.cache
+@st.cache_data
 def print_top_words_by_cluster(sorted_centroids, i):
     cluster = "Cluster %d:" % i
     words = []
@@ -165,7 +163,6 @@ def print_top_words_by_cluster(sorted_centroids, i):
 
 
 
-# @st.cache
 def print_word_cloud_per_cluster(j=2):
     
     if j >= k:
