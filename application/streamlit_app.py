@@ -11,7 +11,7 @@ import spacy
 
 
 # st.title("How Does Unsupervised Learning Group Tech News Articles?")
-st.title("Categorize an Tech Article Based on Unsupervized Clustering")
+st.title("Categorize a Tech Article Based on Unsupervized Clustering")
 
 # st.markdown("![image](/assets/image.jpeg)")
 st.image("assets/image.png")
